@@ -13,6 +13,13 @@ type Message = {
   content: string;
 };
 
+type GeneratedImage = {
+  loading?: boolean;
+  imageUrl?: string;
+  prompt?: string;
+  error?: string;
+};
+
 const modeOptions: Array<{ value: CopywriterMode; desc: string }> = [
   { value: "quick", desc: "直接生成可发朋友圈" },
   { value: "diagnose", desc: "判断适不适合这样发" },
@@ -41,6 +48,7 @@ export function CopywriterView() {
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [generatedImages, setGeneratedImages] = useState<Record<string, GeneratedImage>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const apiMessages = useMemo(
@@ -98,6 +106,35 @@ export function CopywriterView() {
     await navigator.clipboard.writeText(content);
   }
 
+  async function generateVisual(message: Message) {
+    setGeneratedImages((current) => ({
+      ...current,
+      [message.id]: { loading: true },
+    }));
+
+    try {
+      const response = await fetch("/api/image-generator", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: message.content }),
+      });
+      const data = await response.json();
+      setGeneratedImages((current) => ({
+        ...current,
+        [message.id]: {
+          imageUrl: data.imageUrl ?? data.imageBase64,
+          prompt: data.prompt,
+          error: data.error,
+        },
+      }));
+    } catch {
+      setGeneratedImages((current) => ({
+        ...current,
+        [message.id]: { error: "图片生成失败，请稍后再试。" },
+      }));
+    }
+  }
+
   return (
     <div className="space-y-4 pb-4">
       <section className="rounded-[2rem] bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-800 p-5 text-white shadow-lg shadow-zinc-300/70">
@@ -147,14 +184,46 @@ export function CopywriterView() {
             <div className={cn("max-w-[82%] rounded-[1.5rem] px-4 py-3 text-sm leading-6 shadow-sm", message.role === "user" ? "bg-zinc-950 text-white" : "border border-border bg-white text-foreground")}>
               <div className="whitespace-pre-wrap">{message.content}</div>
               {message.role === "assistant" && message.id !== "welcome" && (
-                <button
-                  type="button"
-                  onClick={() => copyText(message.content)}
-                  className="mt-3 inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground"
-                >
-                  <Copy className="h-3 w-3" />
-                  复制结果
-                </button>
+                <div className="mt-3 space-y-2">
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => copyText(message.content)}
+                      className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground"
+                    >
+                      <Copy className="h-3 w-3" />
+                      复制结果
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => generateVisual(message)}
+                      disabled={generatedImages[message.id]?.loading}
+                      className="inline-flex items-center gap-1 rounded-full bg-zinc-950 px-3 py-1 text-xs font-medium text-white disabled:opacity-60"
+                    >
+                      {generatedImages[message.id]?.loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <ImagePlus className="h-3 w-3" />}
+                      生成配图
+                    </button>
+                  </div>
+                  {generatedImages[message.id]?.imageUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={generatedImages[message.id]?.imageUrl}
+                      alt="生成的朋友圈配图"
+                      className="mt-2 aspect-square w-full rounded-2xl border border-border object-cover"
+                    />
+                  )}
+                  {generatedImages[message.id]?.prompt && !generatedImages[message.id]?.imageUrl && (
+                    <div className="rounded-2xl bg-secondary p-3 text-xs leading-5 text-secondary-foreground">
+                      <div className="mb-1 font-semibold">配图提示词</div>
+                      <div className="whitespace-pre-wrap">{generatedImages[message.id]?.prompt}</div>
+                    </div>
+                  )}
+                  {generatedImages[message.id]?.error && (
+                    <div className="rounded-2xl bg-secondary p-3 text-xs leading-5 text-muted-foreground">
+                      {generatedImages[message.id]?.error}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
             {message.role === "user" && (
