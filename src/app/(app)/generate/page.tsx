@@ -1,5 +1,5 @@
-import { CopywriterView } from "@/components/generate/copywriter-view";
+import { GenerateGuideView } from "@/components/generate/generate-guide-view";
 
 export default function GeneratePage() {
-  return <CopywriterView />;
+  return <GenerateGuideView />;
 }
