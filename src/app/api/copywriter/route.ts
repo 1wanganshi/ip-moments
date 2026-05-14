@@ -12,12 +12,12 @@ type RequestBody = {
   imageName?: string | null;
 };
 
-const rawBaseUrl = process.env.OPENAI_API_URL ?? process.env.OPENAI_COMPATIBLE_BASE_URL ?? "https://coderxiaoc.com";
+const rawBaseUrl = process.env.OPENAI_API_URL ?? process.env.OPENAI_COMPATIBLE_BASE_URL ?? "https://api.openai.com/v1";
 const OPENAI_API_URL = rawBaseUrl.endsWith("/chat/completions")
   ? rawBaseUrl
   : `${rawBaseUrl.replace(/\/$/, "")}/chat/completions`;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY ?? process.env.OPENAI_COMPATIBLE_API_KEY ?? "sk-ea5756298b01c1174344e292e3bf5c8434dafcc90b27173192171f86c04c5cdf";
-const OPENAI_MODEL = process.env.OPENAI_MODEL ?? process.env.OPENAI_TEXT_MODEL ?? "gpt-5.5";
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY ?? process.env.OPENAI_COMPATIBLE_API_KEY;
+const OPENAI_MODEL = process.env.OPENAI_MODEL ?? process.env.OPENAI_TEXT_MODEL ?? "gpt-4o-mini";
 
 export async function POST(request: NextRequest) {
   const body = (await request.json()) as RequestBody;

@@ -37,7 +37,7 @@ export function CopywriterView() {
       id: "welcome",
       role: "assistant",
       content:
-        "我是你的朋友圈自动成交文案教练。发我一张图、一个主题、一段草稿，或者直接说你想达成什么结果，我会帮你判断怎么发、写成可复制的朋友圈，并给发后承接建议。",
+        "我是你的内容生成助手。发我一张图、一个主题、一段草稿，或者直接说你想达成什么结果，我会帮你整理成适合朋友圈发布的内容，并给出后续互动和私聊承接建议。",
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
@@ -103,17 +103,17 @@ export function CopywriterView() {
       <section className="rounded-[2rem] bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-800 p-5 text-white shadow-lg shadow-zinc-300/70">
         <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs text-zinc-200">
           <Sparkles className="h-3.5 w-3.5" />
-          朋友圈自动成交文案系统
+          内容生成助手
         </div>
-        <h1 className="text-2xl font-bold leading-tight">把素材变成能建立信任、承接咨询的朋友圈</h1>
+        <h1 className="text-2xl font-bold leading-tight">把你的素材整理成能直接发布的朋友圈内容</h1>
         <p className="mt-3 text-sm leading-6 text-zinc-300">
-          支持图片主题、草稿改写、活动发售、生活圈、SQ客户建议话术。默认写得像真实朋友圈，而不是硬广。
+          输入图片、主题、草稿或客户反馈，系统会在后台按朋友圈内容策略判断角度、生成文案，并补充发后承接建议。
         </p>
       </section>
 
       <Card className="space-y-3 p-3">
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-sm font-semibold">选择工作模式</h2>
+          <h2 className="text-sm font-semibold">选择本次任务</h2>
           <span className="text-xs text-muted-foreground">当前：{COPYWRITER_MODE_LABELS[mode]}</span>
         </div>
         <div className="grid grid-cols-2 gap-2">
@@ -167,7 +167,7 @@ export function CopywriterView() {
         {isLoading && (
           <div className="flex items-center gap-2 rounded-2xl border border-border bg-white px-4 py-3 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
-            正在按朋友圈成交逻辑生成...
+            正在生成适合发布的内容...
           </div>
         )}
       </div>
